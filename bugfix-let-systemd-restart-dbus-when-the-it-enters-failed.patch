@@ -1,0 +1,26 @@
+From 223f994f79c51a32d5a6da474584447a8df4f028 Mon Sep 17 00:00:00 2001
+From: openEuler Buildteam <buildteam@openeuler.org>
+Date: Wed, 28 Aug 2019 19:49:53 +0800
+Subject: [PATCH] let systemd restart dbus when it enters failed
+
+let systemd restart dbus when it enters failed by
+adding the following lines to dbus.service file
+Restart=Always
+RestartSec=1
+---
+ bus/dbus.service.in | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/bus/dbus.service.in b/bus/dbus.service.in
+index ca0b7e9..44c26c8 100644
+--- a/bus/dbus.service.in
++++ b/bus/dbus.service.in
+@@ -7,3 +7,5 @@ Requires=dbus.socket
+ ExecStart=@EXPANDED_BINDIR@/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only
+ ExecReload=@EXPANDED_BINDIR@/dbus-send --print-reply --system --type=method_call --dest=org.freedesktop.DBus / org.freedesktop.DBus.ReloadConfig
+ OOMScoreAdjust=-900
++Restart=always
++RestartSec=1
+-- 
+2.19.1
+

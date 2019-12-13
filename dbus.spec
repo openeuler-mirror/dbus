@@ -1,17 +1,20 @@
 Name:     dbus
 Epoch:    1
 Version:  1.12.16
-Release:  3
+Release:  4
 Summary:  System Message Bus
 License:  AFLv2.1 or GPLv2+
 URL:      http://www.freedesktop.org/Software/dbus/
 Source0:  https://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.gz
+Source1:  00-start-message-bus.sh
 
 Patch9000:  bugfix-let-systemd-restart-dbus-when-the-it-enters-failed.patch
 
 BuildRequires:  systemd-devel expat-devel libselinux-devel audit-libs-devel doxygen xmlto cmake
+BuildRequires:  autoconf-archive libtool libX11-devel libcap-ng-devel libxslt
 
 Requires:  systemd libselinux shadow
+Requires(pre): shadow
 
 Obsoletes:  %{name}-common %{name}-daemon %{name}-tools %{name}-libs %{name}-x11
 
@@ -60,7 +63,7 @@ Man pages and other related documents for D-Bus.
 
 %install
 %make_install
-
+install -Dp -m755 %{SOURCE1} %{buildroot}%{_sysconfdir}/X11/xinit/xinitrc.d/00-start-message-bus.sh
 install -d $RPM_BUILD_ROOT%{_sysconfdir}/dbus-1/session.d
 install -d $RPM_BUILD_ROOT%{_sysconfdir}/dbus-1/system.d
 install -d $RPM_BUILD_ROOT%{_datadir}/dbus-1/interfaces
@@ -140,7 +143,7 @@ make check
 %{_bindir}/dbus-launch
 
 %{_libdir}/*dbus-1*.so.*
-
+%{_sysconfdir}/X11/xinit/xinitrc.d/00-start-message-bus.sh
 
 %files devel
 %defattr(-,root,root)
@@ -161,6 +164,9 @@ make check
 %exclude %{_pkgdocdir}/README
 
 %changelog
+* Tue Sep 24 2019 openEuler Buildteam <buildteam@openeuler.org> - 1:1.12.16-4
+- Add build requires to add runtime requires and add a start-message-bus.sh
+
 * Tue Sep 24 2019 openEuler Buildteam <buildteam@openeuler.org> - 1:1.12.16-3
 - Adjust requires 'shadow-utils' to 'shadow'
 

@@ -1,7 +1,7 @@
 Name:     dbus
 Epoch:    1
 Version:  1.12.16
-Release:  4
+Release:  5
 Summary:  System Message Bus
 License:  AFLv2.1 or GPLv2+
 URL:      http://www.freedesktop.org/Software/dbus/
@@ -70,8 +70,6 @@ install -d $RPM_BUILD_ROOT%{_datadir}/dbus-1/interfaces
 install -d $RPM_BUILD_ROOT%{_localstatedir}/run/dbus
 install -d $RPM_BUILD_ROOT%{_localstatedir}/lib/dbus
 
-ln -s dbus.service $RPM_BUILD_ROOT%{_unitdir}/messagebus.service
-
 find $RPM_BUILD_ROOT -type f -name "*.la" -delete -print
 %check
 make check
@@ -123,7 +121,6 @@ make check
 %{_tmpfilesdir}/dbus.conf
 %{_unitdir}/dbus.service
 %{_unitdir}/dbus.socket
-%{_unitdir}/messagebus.service
 %{_unitdir}/multi-user.target.wants/dbus.service
 %{_unitdir}/sockets.target.wants/dbus.socket
 %{_userunitdir}/dbus.service
@@ -164,6 +161,9 @@ make check
 %exclude %{_pkgdocdir}/README
 
 %changelog
+* Thu Jan 9 2020 hexiaowen <hexiaowen@huawei.com> - 1:1.12.16-5
+- delete messagebus.service
+
 * Tue Sep 24 2019 openEuler Buildteam <buildteam@openeuler.org> - 1:1.12.16-4
 - Add build requires to add runtime requires and add a start-message-bus.sh
 

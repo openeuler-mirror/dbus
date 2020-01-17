@@ -1,7 +1,7 @@
 Name:     dbus
 Epoch:    1
 Version:  1.12.16
-Release:  5
+Release:  6
 Summary:  System Message Bus
 License:  AFLv2.1 or GPLv2+
 URL:      http://www.freedesktop.org/Software/dbus/
@@ -25,6 +25,12 @@ D-Bus is a message bus system, a simple way for applications to talk to one anot
 In addition to interprocess communication, D-Bus helps coordinate process lifecycle;
 it makes it simple and reliable to code a "single instance" application or daemon, 
 and to launch applications and daemons on demand when their services are needed.
+
+%package libs
+Summary: Libraries for D-BUS
+
+%description libs
+This package contains libraries for D-BUS.
 
 %package devel
 Summary: Development files for developers
@@ -138,9 +144,11 @@ make check
 %{_bindir}/dbus-update-activation-environment
 %{_bindir}/dbus-uuidgen
 %{_bindir}/dbus-launch
-
-%{_libdir}/*dbus-1*.so.*
 %{_sysconfdir}/X11/xinit/xinitrc.d/00-start-message-bus.sh
+
+%files libs
+%license COPYING
+%{_libdir}/*dbus-1*.so.*
 
 %files devel
 %defattr(-,root,root)
@@ -161,6 +169,9 @@ make check
 %exclude %{_pkgdocdir}/README
 
 %changelog
+* Fri Jan 17 2020 openEuler Buildteam <buildteam@openeuler.org> - 1:1.12.16-6
+- add package of dbus-libs
+
 * Thu Jan 9 2020 hexiaowen <hexiaowen@huawei.com> - 1:1.12.16-5
 - delete messagebus.service
 

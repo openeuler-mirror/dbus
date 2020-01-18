@@ -1,7 +1,7 @@
 Name:     dbus
 Epoch:    1
 Version:  1.12.16
-Release:  7
+Release:  8
 Summary:  System Message Bus
 License:  AFLv2.1 or GPLv2+
 URL:      http://www.freedesktop.org/Software/dbus/
@@ -13,12 +13,13 @@ Patch9000:  bugfix-let-systemd-restart-dbus-when-the-it-enters-failed.patch
 BuildRequires:  systemd-devel expat-devel libselinux-devel audit-libs-devel doxygen xmlto cmake
 BuildRequires:  autoconf-archive libtool libX11-devel libcap-ng-devel libxslt
 
-Requires:  systemd libselinux shadow dbus-libs
-Requires(pre): shadow
+Requires:  systemd
+Requires:  %{name}-daemon = %{epoch}:%{version}-%{release}
+Requires:  %{name}-libs = %{epoch}:%{version}-%{release}
 
-Obsoletes:  %{name}-common %{name}-daemon %{name}-tools %{name}-x11
+Obsoletes:  %{name}-common %{name}-tools %{name}-x11
 
-Provides:  %{name}-common %{name}-daemon %{name}-tools %{name}-x11
+Provides:  %{name}-common %{name}-tools %{name}-x11
 
 %description
 D-Bus is a message bus system, a simple way for applications to talk to one another.
@@ -31,6 +32,20 @@ Summary: Libraries for D-BUS
 
 %description libs
 This package contains libraries for D-BUS.
+
+%package daemon
+Summary:        D-BUS message bus
+Requires:       libselinux systemd
+Requires(pre):  shadow
+Requires:       dbus-common = %{epoch}:%{version}-%{release}
+Requires:       dbus-libs = %{epoch}:%{version}-%{release}
+Requires:       dbus-tools = %{epoch}:%{version}-%{release}
+
+%description daemon
+D-Bus is a message bus system, a simple way for applications to talk to one another.
+In addition to interprocess communication, D-Bus helps coordinate process lifecycle;
+it makes it simple and reliable to code a "single instance" application or daemon,
+and to launch applications and daemons on demand when their services are needed.
 
 %package devel
 Summary: Development files for developers
@@ -80,27 +95,28 @@ find $RPM_BUILD_ROOT -type f -name "*.la" -delete -print
 %check
 make check
 
-%pre
+%pre daemon
 # Add the "dbus" user and group
 %{_sbindir}/groupadd -r dbus 2>/dev/null || :
 %{_sbindir}/useradd -r -c 'D-Bus' -g dbus -s /sbin/nologin -d %{_localstatedir}/run/dbus dbus 2> /dev/null || :
 
-
-%preun
+%preun daemon
 %systemd_preun dbus.service dbus.socket
 %systemd_user_preun dbus.service dbus.socket
 
-%post
+%post daemon
 %systemd_post dbus.service dbus.socket
 %systemd_user_post dbus.service dbus.socket
-/sbin/ldconfig
+
+%post libs -p /sbin/ldconfig
 
 %post devel -p /sbin/ldconfig
 
-%postun
+%postun libs -p /sbin/ldconfig
+
+%postun daemon
 %systemd_postun dbus.service dbus.socket
 %systemd_user_postun dbus.service dbus.socket
-/sbin/ldconfig
 
 %postun devel -p /sbin/ldconfig
 
@@ -122,6 +138,20 @@ make check
 %{_datadir}/dbus-1/interfaces
 %{_sysusersdir}/dbus.conf
 
+%{_bindir}/dbus-send
+%{_bindir}/dbus-monitor
+%{_bindir}/dbus-update-activation-environment
+%{_bindir}/dbus-uuidgen
+%{_bindir}/dbus-launch
+%{_sysconfdir}/X11/xinit/xinitrc.d/00-start-message-bus.sh
+
+%files libs
+%license COPYING
+%{_libdir}/*dbus-1*.so.*
+
+%files daemon
+%doc AUTHORS ChangeLog NEWS README
+%license COPYING
 %ghost %dir /run/%{name}
 %dir %{_localstatedir}/lib/dbus/
 %{_tmpfilesdir}/dbus.conf
@@ -139,16 +169,6 @@ make check
 %{_bindir}/dbus-cleanup-sockets
 %{_bindir}/dbus-run-session
 %{_bindir}/dbus-test-tool
-%{_bindir}/dbus-send
-%{_bindir}/dbus-monitor
-%{_bindir}/dbus-update-activation-environment
-%{_bindir}/dbus-uuidgen
-%{_bindir}/dbus-launch
-%{_sysconfdir}/X11/xinit/xinitrc.d/00-start-message-bus.sh
-
-%files libs
-%license COPYING
-%{_libdir}/*dbus-1*.so.*
 
 %files devel
 %defattr(-,root,root)
@@ -169,6 +189,9 @@ make check
 %exclude %{_pkgdocdir}/README
 
 %changelog
+* Sat Jan 18 2020 openEuler Buildteam <buildteam@openeuler.org> - 1:1.12.16-8
+- add package of dbus-daemon
+
 * Fri Jan 17 2020 openEuler Buildteam <buildteam@openeuler.org> - 1:1.12.16-7
 - delete unneeded obsolets and add requires
 

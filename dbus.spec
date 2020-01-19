@@ -1,7 +1,7 @@
 Name:     dbus
 Epoch:    1
 Version:  1.12.16
-Release:  8
+Release:  9
 Summary:  System Message Bus
 License:  AFLv2.1 or GPLv2+
 URL:      http://www.freedesktop.org/Software/dbus/
@@ -16,6 +16,9 @@ BuildRequires:  autoconf-archive libtool libX11-devel libcap-ng-devel libxslt
 Requires:  systemd
 Requires:  %{name}-daemon = %{epoch}:%{version}-%{release}
 Requires:  %{name}-libs = %{epoch}:%{version}-%{release}
+Requires(post): systemd
+Requires(preun): systemd
+Requires(postun): systemd
 
 Obsoletes:  %{name}-common %{name}-tools %{name}-x11
 
@@ -35,8 +38,11 @@ This package contains libraries for D-BUS.
 
 %package daemon
 Summary:        D-BUS message bus
-Requires:       libselinux systemd
 Requires(pre):  shadow
+Requires(post): systemd
+Requires(preun): systemd
+Requires(postun): systemd
+Requires:       libselinux systemd
 Requires:       dbus-common = %{epoch}:%{version}-%{release}
 Requires:       dbus-libs = %{epoch}:%{version}-%{release}
 Requires:       dbus-tools = %{epoch}:%{version}-%{release}
@@ -189,6 +195,9 @@ make check
 %exclude %{_pkgdocdir}/README
 
 %changelog
+* Sun Jan 19 2020 openEuler Buildteam <buildteam@openeuler.org> - 1:1.12.16-9
+- add requires of systemd at different time
+
 * Sat Jan 18 2020 openEuler Buildteam <buildteam@openeuler.org> - 1:1.12.16-8
 - add package of dbus-daemon
 

@@ -1,7 +1,7 @@
 Name:     dbus
 Epoch:    1
 Version:  1.12.16
-Release:  9
+Release:  10
 Summary:  System Message Bus
 License:  AFLv2.1 or GPLv2+
 URL:      http://www.freedesktop.org/Software/dbus/
@@ -15,14 +15,10 @@ BuildRequires:  autoconf-archive libtool libX11-devel libcap-ng-devel libxslt
 
 Requires:  systemd
 Requires:  %{name}-daemon = %{epoch}:%{version}-%{release}
-Requires:  %{name}-libs = %{epoch}:%{version}-%{release}
-Requires(post): systemd
-Requires(preun): systemd
-Requires(postun): systemd
 
-Obsoletes:  %{name}-common %{name}-tools %{name}-x11
+Obsoletes:  %{name}-x11
 
-Provides:  %{name}-common %{name}-tools %{name}-x11
+Provides:   %{name}-x11
 
 %description
 D-Bus is a message bus system, a simple way for applications to talk to one another.
@@ -52,6 +48,25 @@ D-Bus is a message bus system, a simple way for applications to talk to one anot
 In addition to interprocess communication, D-Bus helps coordinate process lifecycle;
 it makes it simple and reliable to code a "single instance" application or daemon,
 and to launch applications and daemons on demand when their services are needed.
+
+%package common
+Summary:        dbus configuration
+BuildArch:      noarch
+Requires:       systemd
+Requires(post): systemd
+Requires(preun): systemd
+Requires(postun): systemd
+
+%description common
+This package contains the configuration and setup files for D-Bus.
+
+%package tools
+Summary:        dbus tools
+Requires:       dbus-libs = %{epoch}:%{version}-%{release}
+
+%description tools
+This package contains the tools and utilities to interact 
+with a running D-Bus Message Bus.
 
 %package devel
 Summary: Development files for developers
@@ -130,24 +145,6 @@ make check
 %defattr(-,root,root)
 %doc AUTHORS ChangeLog NEWS README
 %license COPYING
-
-%dir %{_sysconfdir}/dbus-1
-%dir %{_sysconfdir}/dbus-1/session.d
-%dir %{_sysconfdir}/dbus-1/system.d
-%config %{_sysconfdir}/dbus-1/session.conf
-%config %{_sysconfdir}/dbus-1/system.conf
-%dir %{_datadir}/dbus-1
-%{_datadir}/dbus-1/session.conf
-%{_datadir}/dbus-1/system.conf
-%{_datadir}/dbus-1/services
-%{_datadir}/dbus-1/system-services
-%{_datadir}/dbus-1/interfaces
-%{_sysusersdir}/dbus.conf
-
-%{_bindir}/dbus-send
-%{_bindir}/dbus-monitor
-%{_bindir}/dbus-update-activation-environment
-%{_bindir}/dbus-uuidgen
 %{_bindir}/dbus-launch
 %{_sysconfdir}/X11/xinit/xinitrc.d/00-start-message-bus.sh
 
@@ -176,6 +173,26 @@ make check
 %{_bindir}/dbus-run-session
 %{_bindir}/dbus-test-tool
 
+%files common
+%dir %{_sysconfdir}/dbus-1
+%dir %{_sysconfdir}/dbus-1/session.d
+%dir %{_sysconfdir}/dbus-1/system.d
+%config %{_sysconfdir}/dbus-1/session.conf
+%config %{_sysconfdir}/dbus-1/system.conf
+%dir %{_datadir}/dbus-1
+%{_datadir}/dbus-1/session.conf
+%{_datadir}/dbus-1/system.conf
+%{_datadir}/dbus-1/services
+%{_datadir}/dbus-1/system-services
+%{_datadir}/dbus-1/interfaces
+%{_sysusersdir}/dbus.conf
+
+%files tools
+%{_bindir}/dbus-send
+%{_bindir}/dbus-monitor
+%{_bindir}/dbus-update-activation-environment
+%{_bindir}/dbus-uuidgen
+
 %files devel
 %defattr(-,root,root)
 %{_includedir}/*
@@ -195,8 +212,11 @@ make check
 %exclude %{_pkgdocdir}/README
 
 %changelog
-* Sun Jan 19 2020 openEuler Buildteam <buildteam@openeuler.org> - 1:1.12.16-9
-- add requires of systemd at different time
+* Sun Jan 19 2020 openEuler Buildteam <buildteam@openeuler.org> - 1:1.12.16-10
+- add package of dbus-tools and dbus-common
+
+* Sat Jan 18 2020 openEuler Buildteam <buildteam@openeuler.org> - 1:1.12.16-9
+- add requires of systemd
 
 * Sat Jan 18 2020 openEuler Buildteam <buildteam@openeuler.org> - 1:1.12.16-8
 - add package of dbus-daemon

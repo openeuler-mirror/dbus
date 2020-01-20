@@ -1,7 +1,7 @@
 Name:     dbus
 Epoch:    1
 Version:  1.12.16
-Release:  11
+Release:  12
 Summary:  System Message Bus
 License:  AFLv2.1 or GPLv2+
 URL:      http://www.freedesktop.org/Software/dbus/
@@ -12,6 +12,8 @@ Patch9000:  bugfix-let-systemd-restart-dbus-when-the-it-enters-failed.patch
 
 BuildRequires:  systemd-devel expat-devel libselinux-devel audit-libs-devel doxygen xmlto cmake
 BuildRequires:  autoconf-archive libtool libX11-devel libcap-ng-devel libxslt
+
+Requires:  %{name}-daemon = %{epoch}:%{version}-%{release}
 
 %description
 D-Bus is a message bus system, a simple way for applications to talk to one another.
@@ -63,7 +65,7 @@ with a running D-Bus Message Bus.
 
 %package devel
 Summary: Development files for developers
-Requires: %{name}%{?_isa} = %{epoch}:%{version}-%{release} xml-common
+Requires: %{name}-libs = %{epoch}:%{version}-%{release} xml-common
 
 %description devel
 This package contains development files for developers.
@@ -213,6 +215,9 @@ make check
 %exclude %{_pkgdocdir}/README
 
 %changelog
+* Mon Jan 20 2020 openEuler Buildteam <buildteam@openeuler.org> - 1:1.12.16-12
+- add requires for dbus-daemon
+
 * Mon Jan 20 2020 openEuler Buildteam <buildteam@openeuler.org> - 1:1.12.16-11
 - add package of dbus-x11
 

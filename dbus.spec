@@ -1,7 +1,7 @@
 Name:     dbus
 Epoch:    1
 Version:  1.12.16
-Release:  10
+Release:  11
 Summary:  System Message Bus
 License:  AFLv2.1 or GPLv2+
 URL:      http://www.freedesktop.org/Software/dbus/
@@ -12,13 +12,6 @@ Patch9000:  bugfix-let-systemd-restart-dbus-when-the-it-enters-failed.patch
 
 BuildRequires:  systemd-devel expat-devel libselinux-devel audit-libs-devel doxygen xmlto cmake
 BuildRequires:  autoconf-archive libtool libX11-devel libcap-ng-devel libxslt
-
-Requires:  systemd
-Requires:  %{name}-daemon = %{epoch}:%{version}-%{release}
-
-Obsoletes:  %{name}-x11
-
-Provides:   %{name}-x11
 
 %description
 D-Bus is a message bus system, a simple way for applications to talk to one another.
@@ -74,6 +67,13 @@ Requires: %{name}%{?_isa} = %{epoch}:%{version}-%{release} xml-common
 
 %description devel
 This package contains development files for developers.
+
+%package x11
+Summary: X11-requiring for D-BUS
+Requires: %{name}-daemon = %{epoch}:%{version}-%{release}
+
+%description x11
+This pacakge contains the tools that needed to be install for Xlib.
 
 %package help
 Summary: Man pages and other related documents for D-Bus
@@ -143,18 +143,16 @@ make check
 
 %files
 %defattr(-,root,root)
-%doc AUTHORS ChangeLog NEWS README
 %license COPYING
-%{_bindir}/dbus-launch
-%{_sysconfdir}/X11/xinit/xinitrc.d/00-start-message-bus.sh
+%doc AUTHORS ChangeLog NEWS README
 
 %files libs
 %license COPYING
 %{_libdir}/*dbus-1*.so.*
 
 %files daemon
-%doc AUTHORS ChangeLog NEWS README
 %license COPYING
+%doc AUTHORS ChangeLog NEWS README
 %ghost %dir /run/%{name}
 %dir %{_localstatedir}/lib/dbus/
 %{_tmpfilesdir}/dbus.conf
@@ -165,7 +163,6 @@ make check
 %{_userunitdir}/dbus.service
 %{_userunitdir}/dbus.socket
 %{_userunitdir}/sockets.target.wants/dbus.socket
-
 %dir %{_libexecdir}/dbus-1
 %attr(4750,root,dbus) %{_libexecdir}/dbus-1/dbus-daemon-launch-helper
 %{_bindir}/dbus-daemon
@@ -193,6 +190,10 @@ make check
 %{_bindir}/dbus-update-activation-environment
 %{_bindir}/dbus-uuidgen
 
+%files x11
+%{_bindir}/dbus-launch
+%{_sysconfdir}/X11/xinit/xinitrc.d/00-start-message-bus.sh
+
 %files devel
 %defattr(-,root,root)
 %{_includedir}/*
@@ -212,6 +213,9 @@ make check
 %exclude %{_pkgdocdir}/README
 
 %changelog
+* Mon Jan 20 2020 openEuler Buildteam <buildteam@openeuler.org> - 1:1.12.16-11
+- add package of dbus-x11
+
 * Sun Jan 19 2020 openEuler Buildteam <buildteam@openeuler.org> - 1:1.12.16-10
 - add package of dbus-tools and dbus-common
 

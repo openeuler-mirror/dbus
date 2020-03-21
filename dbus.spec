@@ -1,7 +1,7 @@
 Name:     dbus
 Epoch:    1
 Version:  1.12.16
-Release:  12
+Release:  13
 Summary:  System Message Bus
 License:  AFLv2.1 or GPLv2+
 URL:      http://www.freedesktop.org/Software/dbus/
@@ -11,7 +11,7 @@ Source1:  00-start-message-bus.sh
 Patch9000:  bugfix-let-systemd-restart-dbus-when-the-it-enters-failed.patch
 
 BuildRequires:  systemd-devel expat-devel libselinux-devel audit-libs-devel doxygen xmlto cmake
-BuildRequires:  autoconf-archive libtool libX11-devel libcap-ng-devel libxslt
+BuildRequires:  autoconf-archive libtool libX11-devel libcap-ng-devel libxslt gdb
 
 Requires:  %{name}-daemon = %{epoch}:%{version}-%{release}
 
@@ -215,6 +215,9 @@ make check
 %exclude %{_pkgdocdir}/README
 
 %changelog
+* Sat Mar 21 2020 openEuler Buildteam <buildteam@openeuler.org> - 1:1.12.16-13
+- Add build requires of gdb
+
 * Mon Jan 20 2020 openEuler Buildteam <buildteam@openeuler.org> - 1:1.12.16-12
 - add requires for dbus-daemon
 

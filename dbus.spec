@@ -1,14 +1,17 @@
 Name:     dbus
 Epoch:    1
 Version:  1.12.16
-Release:  13
+Release:  14
 Summary:  System Message Bus
 License:  AFLv2.1 or GPLv2+
 URL:      http://www.freedesktop.org/Software/dbus/
 Source0:  https://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.gz
 Source1:  00-start-message-bus.sh
 
-Patch9000:  bugfix-let-systemd-restart-dbus-when-the-it-enters-failed.patch
+# fix CVE-2020-12049
+Patch0000:  sysdeps-unix-On-MSG_CTRUNC-close-the-fds-we-did-rece.patch
+
+Patch0010:  bugfix-let-systemd-restart-dbus-when-the-it-enters-failed.patch
 
 BuildRequires:  systemd-devel expat-devel libselinux-devel audit-libs-devel doxygen xmlto cmake
 BuildRequires:  autoconf-archive libtool libX11-devel libcap-ng-devel libxslt gdb
@@ -215,6 +218,9 @@ make check
 %exclude %{_pkgdocdir}/README
 
 %changelog
+* Sat Jun 20 2020 shenyangyang <shenyangyang4@huawei.com> - 1:1.12.16-14
+- Fix CVE-2020-12049
+
 * Sat Mar 21 2020 openEuler Buildteam <buildteam@openeuler.org> - 1:1.12.16-13
 - Add build requires of gdb
 

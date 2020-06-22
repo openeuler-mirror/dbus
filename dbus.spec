@@ -1,7 +1,7 @@
 Name:     dbus
 Epoch:    1
 Version:  1.12.16
-Release:  14
+Release:  15
 Summary:  System Message Bus
 License:  AFLv2.1 or GPLv2+
 URL:      http://www.freedesktop.org/Software/dbus/
@@ -10,6 +10,8 @@ Source1:  00-start-message-bus.sh
 
 # fix CVE-2020-12049
 Patch0000:  sysdeps-unix-On-MSG_CTRUNC-close-the-fds-we-did-rece.patch
+Patch0001:  fdpass-test-Assert-that-we-don-t-leak-file-descripto.patch
+Patch0002:  Solaris-and-derivatives-do-not-adjust-cmsg_len-on-MS.patch
 
 Patch0010:  bugfix-let-systemd-restart-dbus-when-the-it-enters-failed.patch
 
@@ -218,6 +220,9 @@ make check
 %exclude %{_pkgdocdir}/README
 
 %changelog
+* Mon Jun 22 2020 shenyangyang <shenyangyang4@huawei.com> - 1:1.12.16-15
+- Add more test cases modify for solving CVE-2020-12049
+
 * Sat Jun 20 2020 shenyangyang <shenyangyang4@huawei.com> - 1:1.12.16-14
 - Fix CVE-2020-12049
 

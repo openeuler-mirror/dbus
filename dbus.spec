@@ -1,6 +1,6 @@
 Name:     dbus
 Epoch:    1
-Version:  1.12.18
+Version:  1.12.20
 Release:  1
 Summary:  System Message Bus
 License:  AFLv2.1 or GPLv2+
@@ -215,6 +215,9 @@ make check
 %exclude %{_pkgdocdir}/README
 
 %changelog
+* Wed Jul 15 2020 shenyangyang <shenyangyang4@huawei.com> - 1:1.12.20-1
+- Upgrade to 1.12.20
+
 * Wed Jul 1 2020 shenyangyang <shenyangyang4@huawei.com> - 1:1.12.18-1
 - Upgrade to 1.12.18
 

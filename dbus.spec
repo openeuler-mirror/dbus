@@ -216,7 +216,7 @@ make check
 
 %changelog
 * Tue Nov 13 2020 xielh2000 <xielh2000@163.com> - 1:1.12.20-2
-- Upgrade to 1.12.20
+- Add changelog
 
 * Wed Jul 15 2020 shenyangyang <shenyangyang4@huawei.com> - 1:1.12.20-1
 - Upgrade to 1.12.20

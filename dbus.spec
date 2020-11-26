@@ -216,7 +216,7 @@ make check
 
 %changelog
 * Tue Nov 13 2020 xielh2000 <xielh2000@163.com> - 1:1.12.20-2
-- Add changelog
+- Add from 1.12.16 to 1.12.20 of changelog and README.en
 
 * Wed Jul 15 2020 shenyangyang <shenyangyang4@huawei.com> - 1:1.12.20-1
 - Upgrade to 1.12.20

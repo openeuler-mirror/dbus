@@ -1,7 +1,7 @@
 Name:     dbus
 Epoch:    1
 Version:  1.12.20
-Release:  1
+Release:  2
 Summary:  System Message Bus
 License:  AFLv2.1 or GPLv2+
 URL:      http://www.freedesktop.org/Software/dbus/
@@ -215,6 +215,9 @@ make check
 %exclude %{_pkgdocdir}/README
 
 %changelog
+* Tue Nov 13 2020 xielh2000 <xielh2000@163.com> - 1:1.12.20-2
+- Add from 1.12.16 to 1.12.20 of changelog and README.en
+
 * Wed Jul 15 2020 shenyangyang <shenyangyang4@huawei.com> - 1:1.12.20-1
 - Upgrade to 1.12.20
 

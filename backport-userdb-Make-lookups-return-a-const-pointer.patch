@@ -1,0 +1,97 @@
+From 6ee66ff7bcc91803111d950512f02651e664f74f Mon Sep 17 00:00:00 2001
+From: Simon McVittie <smcv@collabora.com>
+Date: Tue, 30 Jun 2020 19:13:17 +0100
+Subject: [PATCH] userdb: Make lookups return a const pointer
+
+This makes it more obvious that the returned pointer points to a
+struct owned by the userdb, which must not be freed or have its
+contents modified, and is only valid to dereference until the next
+modification to the userdb's underlying hash tables (which in practice
+means until the lock is released, because after that we have no
+guarantees about what might be going on in another thread).
+
+Signed-off-by: Simon McVittie <smcv@collabora.com>
+---
+ dbus/dbus-userdb-util.c |  6 ++++--
+ dbus/dbus-userdb.c      |  6 ++++--
+ dbus/dbus-userdb.h      | 10 +++++-----
+ 3 files changed, 13 insertions(+), 9 deletions(-)
+
+diff --git a/dbus/dbus-userdb-util.c b/dbus/dbus-userdb-util.c
+index 44a1a78..af880ed 100644
+--- a/dbus/dbus-userdb-util.c
++++ b/dbus/dbus-userdb-util.c
+@@ -240,9 +240,9 @@ _dbus_get_user_id_and_primary_group (const DBusString  *username,
+  * @param gid the group ID or #DBUS_GID_UNSET
+  * @param groupname group name or #NULL 
+  * @param error error to fill in
+- * @returns the entry in the database
++ * @returns the entry in the database (borrowed, do not free)
+  */
+-DBusGroupInfo*
++const DBusGroupInfo *
+ _dbus_user_database_lookup_group (DBusUserDatabase *db,
+                                   dbus_gid_t        gid,
+                                   const DBusString *groupname,
+@@ -328,6 +328,8 @@ _dbus_user_database_lookup_group (DBusUserDatabase *db,
+           return NULL;
+         }
+       
++      /* Return a borrowed reference to the DBusGroupInfo owned by the
++       * two hash tables */
+       return info;
+     }
+ }
+diff --git a/dbus/dbus-userdb.c b/dbus/dbus-userdb.c
+index 4c42b7d..223eaae 100644
+--- a/dbus/dbus-userdb.c
++++ b/dbus/dbus-userdb.c
+@@ -122,9 +122,9 @@ _dbus_is_a_number (const DBusString *str,
+  * @param uid the user ID or #DBUS_UID_UNSET
+  * @param username username or #NULL 
+  * @param error error to fill in
+- * @returns the entry in the database
++ * @returns the entry in the database (borrowed, do not free)
+  */
+-DBusUserInfo*
++const DBusUserInfo *
+ _dbus_user_database_lookup (DBusUserDatabase *db,
+                             dbus_uid_t        uid,
+                             const DBusString *username,
+@@ -211,6 +211,8 @@ _dbus_user_database_lookup (DBusUserDatabase *db,
+           return NULL;
+         }
+       
++      /* Return a borrowed pointer to the DBusUserInfo owned by the
++       * hash tables */
+       return info;
+     }
+ }
+diff --git a/dbus/dbus-userdb.h b/dbus/dbus-userdb.h
+index 53fc90b..9e9ed88 100644
+--- a/dbus/dbus-userdb.h
++++ b/dbus/dbus-userdb.h
+@@ -76,15 +76,15 @@ dbus_bool_t       _dbus_user_database_get_groupname (DBusUserDatabase     *db,
+                                                      DBusError            *error);
+ 
+ DBUS_PRIVATE_EXPORT
+-DBusUserInfo*  _dbus_user_database_lookup       (DBusUserDatabase *db,
++const DBusUserInfo *_dbus_user_database_lookup  (DBusUserDatabase *db,
+                                                  dbus_uid_t        uid,
+                                                  const DBusString *username,
+                                                  DBusError        *error);
+ DBUS_PRIVATE_EXPORT
+-DBusGroupInfo* _dbus_user_database_lookup_group (DBusUserDatabase *db,
+-                                                 dbus_gid_t        gid,
+-                                                 const DBusString *groupname,
+-                                                 DBusError        *error);
++const DBusGroupInfo* _dbus_user_database_lookup_group (DBusUserDatabase *db,
++                                                       dbus_gid_t        gid,
++                                                       const DBusString *groupname,
++                                                       DBusError        *error);
+ DBUS_PRIVATE_EXPORT
+ void           _dbus_user_info_free_allocated   (DBusUserInfo     *info);
+ DBUS_PRIVATE_EXPORT
+-- 
+2.23.0
+

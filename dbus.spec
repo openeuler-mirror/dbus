@@ -1,19 +1,24 @@
 Name:     dbus
 Epoch:    1
 Version:  1.12.16
-Release:  15
+Release:  16
 Summary:  System Message Bus
 License:  AFLv2.1 or GPLv2+
 URL:      http://www.freedesktop.org/Software/dbus/
 Source0:  https://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.gz
 Source1:  00-start-message-bus.sh
 
-# fix CVE-2020-12049
-Patch0000:  sysdeps-unix-On-MSG_CTRUNC-close-the-fds-we-did-rece.patch
-Patch0001:  fdpass-test-Assert-that-we-don-t-leak-file-descripto.patch
-Patch0002:  Solaris-and-derivatives-do-not-adjust-cmsg_len-on-MS.patch
+Patch0001:  bugfix-let-systemd-restart-dbus-when-the-it-enters-failed.patch
 
-Patch0010:  bugfix-let-systemd-restart-dbus-when-the-it-enters-failed.patch
+# fix CVE-2020-12049
+Patch6000:  sysdeps-unix-On-MSG_CTRUNC-close-the-fds-we-did-rece.patch
+Patch6001:  fdpass-test-Assert-that-we-don-t-leak-file-descripto.patch
+Patch6002:  Solaris-and-derivatives-do-not-adjust-cmsg_len-on-MS.patch
+
+# fix cve-2020-35512
+Patch6003:  backport-userdb-Make-lookups-return-a-const-pointer.patch
+Patch6004:  backport-userdb-Reference-count-DBusUserInfo-DBusGroupInfo.patch
+
 
 BuildRequires:  systemd-devel expat-devel libselinux-devel audit-libs-devel doxygen xmlto cmake
 BuildRequires:  autoconf-archive libtool libX11-devel libcap-ng-devel libxslt gdb
@@ -220,6 +225,9 @@ make check
 %exclude %{_pkgdocdir}/README
 
 %changelog
+* Fri Mar 19 2021 shenyangyang <shenyangyang4@huawei.com> - 1:1.12.16-16
+- Fix CVE-2020-35512
+
 * Mon Jun 22 2020 shenyangyang <shenyangyang4@huawei.com> - 1:1.12.16-15
 - Add more test cases modify for solving CVE-2020-12049
 

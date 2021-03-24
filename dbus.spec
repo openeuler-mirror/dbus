@@ -1,9 +1,9 @@
 Name:     dbus
 Epoch:    1
 Version:  1.12.16
-Release:  16
+Release:  17
 Summary:  System Message Bus
-License:  AFLv2.1 or GPLv2+
+License:  AFLv3.0 or GPLv2+
 URL:      http://www.freedesktop.org/Software/dbus/
 Source0:  https://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.gz
 Source1:  00-start-message-bus.sh
@@ -130,8 +130,14 @@ make check
 
 %pre daemon
 # Add the "dbus" user and group
-%{_sbindir}/groupadd -r dbus 2>/dev/null || :
-%{_sbindir}/useradd -r -c 'D-Bus' -g dbus -s /sbin/nologin -d %{_localstatedir}/run/dbus dbus 2> /dev/null || :
+getent group dbus > /dev/null || groupadd -f -g 81 -r dbus
+if ! getent passwd dbus > /dev/null ; then
+    if ! getent passwd 81 > /dev/null ; then
+        useradd -r -u 81 -c 'D-Bus' -g dbus -s /sbin/nologin -d %{_localstatedir}/run/dbus dbus
+    else
+        useradd -r -g dbus -c 'D-Bus' -s /sbin/nologin -d %{_localstatedir}/run/dbus dbus
+    fi
+fi
 
 %preun daemon
 %systemd_preun dbus.service dbus.socket
@@ -225,6 +231,9 @@ make check
 %exclude %{_pkgdocdir}/README
 
 %changelog
+* Wed Mar 24 2021 Anakin Zhang <benjamin93@163.com> - 1:1.12.16-17
+- change dbus group ID to 81
+
 * Fri Mar 19 2021 shenyangyang <shenyangyang4@huawei.com> - 1:1.12.16-16
 - Fix CVE-2020-35512
 

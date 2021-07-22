@@ -1,7 +1,7 @@
 Name:     dbus
 Epoch:    1
 Version:  1.12.20
-Release:  3
+Release:  4
 Summary:  System Message Bus
 License:  AFLv3.0 or GPLv2+
 URL:      http://www.freedesktop.org/Software/dbus/
@@ -11,7 +11,7 @@ Source1:  00-start-message-bus.sh
 Patch0001:  bugfix-let-systemd-restart-dbus-when-the-it-enters-failed.patch
 
 BuildRequires:  systemd-devel expat-devel libselinux-devel audit-libs-devel doxygen xmlto cmake
-BuildRequires:  autoconf-archive libtool libX11-devel libcap-ng-devel libxslt gdb
+BuildRequires:  autoconf-archive libtool libX11-devel libcap-ng-devel libxslt
 
 Requires:  %{name}-daemon = %{epoch}:%{version}-%{release}
 
@@ -221,6 +221,9 @@ fi
 %exclude %{_pkgdocdir}/README
 
 %changelog
+* Thu Jul 22 2021 yangmingtai <yangmingtai@huawei.com> - 1:1.12.20-4
+- remove build requires of gdb
+
 * Tue Mar 16 2021 Anakin Zhang <benjamin93@163.com> - 1:1.12.20-3
 - change dbus group ID to 81
 

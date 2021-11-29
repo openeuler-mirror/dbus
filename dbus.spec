@@ -1,7 +1,7 @@
 Name:     dbus
 Epoch:    1
 Version:  1.12.16
-Release:  17
+Release:  18
 Summary:  System Message Bus
 License:  AFLv3.0 or GPLv2+
 URL:      http://www.freedesktop.org/Software/dbus/
@@ -9,6 +9,7 @@ Source0:  https://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.gz
 Source1:  00-start-message-bus.sh
 
 Patch0001:  bugfix-let-systemd-restart-dbus-when-the-it-enters-failed.patch
+Patch0002:  print-load-average-when-activate-service-timeout.patch 
 
 # fix CVE-2020-12049
 Patch6000:  sysdeps-unix-On-MSG_CTRUNC-close-the-fds-we-did-rece.patch
@@ -231,6 +232,9 @@ fi
 %exclude %{_pkgdocdir}/README
 
 %changelog
+* Mon Nov 29 2021 jiangchuangang <jiangchuangang@huawei.com> - 1:1.12.16-18
+- add print-load-average-when-activate-service-timeout.patch for more debug information
+
 * Wed Mar 24 2021 Anakin Zhang <benjamin93@163.com> - 1:1.12.16-17
 - change dbus group ID to 81
 

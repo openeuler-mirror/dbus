@@ -1,7 +1,7 @@
 Name:     dbus
 Epoch:    1
 Version:  1.12.20
-Release:  4
+Release:  5
 Summary:  System Message Bus
 License:  AFLv3.0 or GPLv2+
 URL:      http://www.freedesktop.org/Software/dbus/
@@ -9,6 +9,7 @@ Source0:  https://dbus.freedesktop.org/releases/dbus/%{name}-%{version}.tar.gz
 Source1:  00-start-message-bus.sh
 
 Patch0001:  bugfix-let-systemd-restart-dbus-when-the-it-enters-failed.patch
+Patch0002:  print-load-average-when-activate-service-timeout.patch
 
 BuildRequires:  systemd-devel expat-devel libselinux-devel audit-libs-devel doxygen xmlto cmake
 BuildRequires:  autoconf-archive libtool libX11-devel libcap-ng-devel libxslt
@@ -221,6 +222,9 @@ fi
 %exclude %{_pkgdocdir}/README
 
 %changelog
+* Tue Nov 30 2021 xuxiaozhou <xuxiaozhou1@huawei.com> - 1:1.12.20-5
+- add print-load-average-when-activate-service-timeout.patch for more debug information
+
 * Thu Jul 22 2021 yangmingtai <yangmingtai@huawei.com> - 1:1.12.20-4
 - remove build requires of gdb
 

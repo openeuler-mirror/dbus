@@ -1,0 +1,83 @@
+From 6f678dd638af6513602822ca5ce56393b1e07cf3 Mon Sep 17 00:00:00 2001
+From: x00283583 <xuxiaozhou1@huawei.com>
+Date: Tue, 30 Nov 2021 15:45:08 +0800
+Subject: [PATCH] print load average when activate service timeout
+
+---
+ bus/activation.c | 29 +++++++++++++++++++++++++++--
+ 1 file changed, 27 insertions(+), 2 deletions(-)
+
+diff --git a/bus/activation.c b/bus/activation.c
+index 99404b9..e0db646 100644
+--- a/bus/activation.c
++++ b/bus/activation.c
+@@ -24,6 +24,7 @@
+  */
+ 
+ #include <config.h>
++#include <stdio.h>
+ #include "activation.h"
+ #include "activation-exit-codes.h"
+ #include "config-parser.h"
+@@ -43,6 +44,8 @@
+ #include <errno.h>
+ #endif
+ 
++#define LOADAVG_LEN_MAX 256
++
+ struct BusActivation
+ {
+   int refcount;
+@@ -1526,6 +1529,25 @@ toggle_babysitter_watch (DBusWatch      *watch,
+                            watch);
+ }
+ 
++static dbus_bool_t
++read_loadavg (char *load_avg)
++{
++  FILE *fp;
++  int rc;
++
++  if ((fp = fopen("/proc/loadavg", "r")) == NULL)
++    return FALSE;
++
++  rc = fscanf(fp, "%[^\n]", load_avg);
++
++  fclose(fp);
++
++  if (rc < 1)
++    return FALSE;
++
++  return TRUE;
++}
++
+ static dbus_bool_t
+ pending_activation_timed_out (void *data)
+ {
+@@ -1533,6 +1555,7 @@ pending_activation_timed_out (void *data)
+   BusContext *context;
+   DBusError error;
+   int timeout;
++  char load_avg[LOADAVG_LEN_MAX] = "";
+ 
+   context = pending_activation->activation->context;
+   timeout = bus_context_get_activation_timeout (context);
+@@ -1546,11 +1569,13 @@ pending_activation_timed_out (void *data)
+ 
+   dbus_error_init (&error);
+ 
++  (void)read_loadavg(load_avg);
++
+   bus_context_log_and_set_error (context, DBUS_SYSTEM_LOG_WARNING, &error,
+                    DBUS_ERROR_TIMED_OUT,
+                    "Failed to activate service '%s': timed out "
+-                   "(service_start_timeout=%dms)",
+-                   pending_activation->service_name, timeout);
++                   "(service_start_timeout=%dms), load average: %s",
++                   pending_activation->service_name, timeout, load_avg);
+ 
+   pending_activation_failed (pending_activation, &error);
+ 
+-- 
+2.23.0
+

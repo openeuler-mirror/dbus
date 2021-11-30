@@ -1,0 +1,82 @@
+From 9dfd892ec5e999cd5f2745b9f29ecd9dca805e25 Mon Sep 17 00:00:00 2001
+From: const <jiangchuangang@huawei.com>
+Date: Mon, 29 Nov 2021 16:50:46 +0800
+Subject: [PATCH] print load average when activate service timeout
+
+---
+ bus/activation.c | 29 +++++++++++++++++++++++++++--
+ 1 file changed, 27 insertions(+), 2 deletions(-)
+
+diff --git a/bus/activation.c b/bus/activation.c
+index 99404b9..486ec2e 100644
+--- a/bus/activation.c
++++ b/bus/activation.c
+@@ -24,6 +24,7 @@
+  */
+ 
+ #include <config.h>
++#include <stdio.h>
+ #include "activation.h"
+ #include "activation-exit-codes.h"
+ #include "config-parser.h"
+@@ -43,6 +44,8 @@
+ #include <errno.h>
+ #endif
+ 
++#define LOADAVG_LEN_MAX 256
++
+ struct BusActivation
+ {
+   int refcount;
+@@ -1527,12 +1530,32 @@ toggle_babysitter_watch (DBusWatch      *watch,
+ }
+ 
+ static dbus_bool_t
++read_loadavg (char *load_avg)
++{
++  FILE *fp;
++  int rc;
++
++  if ((fp = fopen("/proc/loadavg", "r")) == NULL)
++    return FALSE;
++
++  rc = fscanf(fp, "%[^\n]", load_avg);
++  
++  fclose(fp);
++
++  if (rc < 1)
++    return FALSE;
++  
++  return TRUE;
++}
++
++static dbus_bool_t
+ pending_activation_timed_out (void *data)
+ {
+   BusPendingActivation *pending_activation = data;
+   BusContext *context;
+   DBusError error;
+   int timeout;
++  char load_avg[LOADAVG_LEN_MAX] = "";
+ 
+   context = pending_activation->activation->context;
+   timeout = bus_context_get_activation_timeout (context);
+@@ -1546,11 +1569,13 @@ pending_activation_timed_out (void *data)
+ 
+   dbus_error_init (&error);
+ 
++  (void)read_loadavg(load_avg);
++
+   bus_context_log_and_set_error (context, DBUS_SYSTEM_LOG_WARNING, &error,
+                    DBUS_ERROR_TIMED_OUT,
+                    "Failed to activate service '%s': timed out "
+-                   "(service_start_timeout=%dms)",
+-                   pending_activation->service_name, timeout);
++                   "(service_start_timeout=%dms), load average: %s",
++                   pending_activation->service_name, timeout, load_avg);
+ 
+   pending_activation_failed (pending_activation, &error);
+ 
+-- 
+1.8.3.1
+

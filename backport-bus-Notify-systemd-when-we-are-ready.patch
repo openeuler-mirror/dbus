@@ -1,0 +1,103 @@
+From 18a0a8892b99f235e3897d9e5c600da00c61ef0a Mon Sep 17 00:00:00 2001
+From: Simon McVittie <smcv@collabora.com>
+Date: Mon, 15 Jan 2018 15:15:52 +0000
+Subject: [PATCH] bus: Notify systemd when we are ready
+
+Signed-off-by: Simon McVittie <smcv@collabora.com>
+Bug: https://bugs.freedesktop.org/show_bug.cgi?id=104641
+Reviewed-by: Philip Withnall <withnall@endlessm.com>
+---
+ bus/dbus.service.in              |  2 ++
+ bus/main.c                       |  1 +
+ bus/systemd-user/dbus.service.in |  2 ++
+ dbus/dbus-sysdeps-util-unix.c    | 12 ++++++++++++
+ dbus/dbus-sysdeps-util-win.c     |  5 +++++
+ dbus/dbus-sysdeps.h              |  2 ++
+ 6 files changed, 24 insertions(+)
+
+diff --git a/bus/dbus.service.in b/bus/dbus.service.in
+index ca0b7e96..3713810b 100644
+--- a/bus/dbus.service.in
++++ b/bus/dbus.service.in
+@@ -4,6 +4,8 @@ Documentation=man:dbus-daemon(1)
+ Requires=dbus.socket
+ 
+ [Service]
++Type=notify
++NotifyAccess=main
+ ExecStart=@EXPANDED_BINDIR@/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only
+ ExecReload=@EXPANDED_BINDIR@/dbus-send --print-reply --system --type=method_call --dest=org.freedesktop.DBus / org.freedesktop.DBus.ReloadConfig
+ OOMScoreAdjust=-900
+diff --git a/bus/main.c b/bus/main.c
+index b3fcddd0..578aa989 100644
+--- a/bus/main.c
++++ b/bus/main.c
+@@ -716,6 +716,7 @@ main (int argc, char **argv)
+ #endif /* DBUS_UNIX */
+ 
+   _dbus_verbose ("We are on D-Bus...\n");
++  _dbus_daemon_report_ready ();
+   _dbus_loop_run (bus_context_get_loop (context));
+ 
+   bus_context_shutdown (context);
+diff --git a/bus/systemd-user/dbus.service.in b/bus/systemd-user/dbus.service.in
+index 7ceffbee..b291b923 100644
+--- a/bus/systemd-user/dbus.service.in
++++ b/bus/systemd-user/dbus.service.in
+@@ -4,5 +4,7 @@ Documentation=man:dbus-daemon(1)
+ Requires=dbus.socket
+ 
+ [Service]
++Type=notify
++NotifyAccess=main
+ ExecStart=@EXPANDED_BINDIR@/dbus-daemon --session --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only
+ ExecReload=@EXPANDED_BINDIR@/dbus-send --print-reply --session --type=method_call --dest=org.freedesktop.DBus / org.freedesktop.DBus.ReloadConfig
+diff --git a/dbus/dbus-sysdeps-util-unix.c b/dbus/dbus-sysdeps-util-unix.c
+index b841bf63..838cd932 100644
+--- a/dbus/dbus-sysdeps-util-unix.c
++++ b/dbus/dbus-sysdeps-util-unix.c
+@@ -1564,3 +1564,15 @@ _dbus_test_append_different_username (DBusString *username)
+ }
+
+ #endif
++
++/**
++ * Report to a service manager that the daemon calling this function is
++ * ready for use. This is currently only implemented for systemd.
++ */
++void
++_dbus_daemon_report_ready (void)
++{
++#ifdef HAVE_SYSTEMD
++  sd_notify (0, "READY=1");
++#endif
++}
+diff --git a/dbus/dbus-sysdeps-util-win.c b/dbus/dbus-sysdeps-util-win.c
+index 1ef4ae6c..f613130e 100644
+--- a/dbus/dbus-sysdeps-util-win.c
++++ b/dbus/dbus-sysdeps-util-win.c
+@@ -1678,3 +1678,8 @@ _dbus_test_append_different_uid (DBusString *uid)
+ }
+
+ #endif
++
++void
++_dbus_daemon_report_ready (void)
++{
++}
+diff --git a/dbus/dbus-sysdeps.h b/dbus/dbus-sysdeps.h
+index b9b0c440..b2943906 100644
+--- a/dbus/dbus-sysdeps.h
++++ b/dbus/dbus-sysdeps.h
+@@ -687,6 +687,8 @@ dbus_bool_t _dbus_test_append_different_username (DBusString *username);
+ #endif
+ #endif  /* DBUS_ENABLE_EMBEDDED_TESTS */
+
++void            _dbus_daemon_report_ready                  (void);
++
+ /** @} */
+
+ DBUS_END_DECLS
+-- 
+2.27.0
+

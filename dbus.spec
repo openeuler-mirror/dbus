@@ -1,7 +1,7 @@
 Name:     dbus
 Epoch:    1
 Version:  1.12.20
-Release:  5
+Release:  6
 Summary:  System Message Bus
 License:  AFLv3.0 or GPLv2+
 URL:      http://www.freedesktop.org/Software/dbus/
@@ -10,6 +10,12 @@ Source1:  00-start-message-bus.sh
 
 Patch0001:  bugfix-let-systemd-restart-dbus-when-the-it-enters-failed.patch
 Patch0002:  print-load-average-when-activate-service-timeout.patch
+
+Patch6000:  backport-bus-Notify-systemd-when-we-are-ready.patch
+Patch6001:  backport-bus-Also-tell-systemd-when-we-re-reloading.patch
+Patch6002:  backport-bus-Also-tell-systemd-before-we-shut-down.patch
+Patch6003:  backport-bus-Don-t-pass-systemd-environment-variables-to-acti.patch
+Patch6004:  backport-bus-Clear-INVOCATION_ID-when-carrying-out-traditiona.patch
 
 BuildRequires:  systemd-devel expat-devel libselinux-devel audit-libs-devel doxygen xmlto cmake
 BuildRequires:  autoconf-archive libtool libX11-devel libcap-ng-devel libxslt
@@ -222,6 +228,9 @@ fi
 %exclude %{_pkgdocdir}/README
 
 %changelog
+* Sat Jan 29 2022 licunlong <licunlong1@huawei.com> - 1:1.12.20-6
+- Tell systemd when dbus is ready/shutting down/reloading config.
+
 * Tue Nov 30 2021 xuxiaozhou <xuxiaozhou1@huawei.com> - 1:1.12.20-5
 - add print-load-average-when-activate-service-timeout.patch for more debug information
 

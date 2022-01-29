@@ -10,6 +10,12 @@ Source1:  00-start-message-bus.sh
 
 Patch0001:  bugfix-let-systemd-restart-dbus-when-the-it-enters-failed.patch
 
+Patch6000:  backport-bus-Notify-systemd-when-we-are-ready.patch
+Patch6001:  backport-bus-Also-tell-systemd-when-we-re-reloading.patch
+Patch6002:  backport-bus-Also-tell-systemd-before-we-shut-down.patch
+Patch6003:  backport-bus-Don-t-pass-systemd-environment-variables-to-acti.patch
+Patch6004:  backport-bus-Clear-INVOCATION_ID-when-carrying-out-traditiona.patch
+
 BuildRequires:  systemd-devel expat-devel libselinux-devel audit-libs-devel doxygen xmlto cmake
 BuildRequires:  autoconf-archive libtool libX11-devel libcap-ng-devel libxslt
 
@@ -221,6 +227,9 @@ fi
 %exclude %{_pkgdocdir}/README
 
 %changelog
+* Sat Jan 29 2022 licunlong <licunlong1@huawei.com> - 1:1.12.20-5
+- Tell systemd when dbus is ready/shutting down/reloading config.
+
 * Thu Jul 22 2021 yangmingtai <yangmingtai@huawei.com> - 1:1.12.20-4
 - remove build requires of gdb
 

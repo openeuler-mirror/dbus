@@ -1,7 +1,7 @@
 Name:     dbus
 Epoch:    1
 Version:  1.12.16
-Release:  18
+Release:  19
 Summary:  System Message Bus
 License:  AFLv3.0 or GPLv2+
 URL:      http://www.freedesktop.org/Software/dbus/
@@ -20,6 +20,11 @@ Patch6002:  Solaris-and-derivatives-do-not-adjust-cmsg_len-on-MS.patch
 Patch6003:  backport-userdb-Make-lookups-return-a-const-pointer.patch
 Patch6004:  backport-userdb-Reference-count-DBusUserInfo-DBusGroupInfo.patch
 
+Patch6005:  backport-bus-Notify-systemd-when-we-are-ready.patch
+Patch6006:  backport-bus-Also-tell-systemd-when-we-re-reloading.patch
+Patch6007:  backport-bus-Also-tell-systemd-before-we-shut-down.patch
+Patch6008:  backport-bus-Don-t-pass-systemd-environment-variables-to-acti.patch
+Patch6009:  backport-bus-Clear-INVOCATION_ID-when-carrying-out-traditiona.patch
 
 BuildRequires:  systemd-devel expat-devel libselinux-devel audit-libs-devel doxygen xmlto cmake
 BuildRequires:  autoconf-archive libtool libX11-devel libcap-ng-devel libxslt gdb
@@ -232,6 +237,9 @@ fi
 %exclude %{_pkgdocdir}/README
 
 %changelog
+* Sat Jan 29 2022 licunlong<licunlong1@huawei.com> - 1:1.12.16-19
+- Tell systemd when dbus is ready/shutting down/reloading config.
+
 * Mon Nov 29 2021 jiangchuangang <jiangchuangang@huawei.com> - 1:1.12.16-18
 - add print-load-average-when-activate-service-timeout.patch for more debug information
 

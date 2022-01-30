@@ -1,0 +1,45 @@
+From 66246fff2a0bd005817fb9d108544da86973a81e Mon Sep 17 00:00:00 2001
+From: Simon McVittie <smcv@collabora.com>
+Date: Tue, 20 Mar 2018 12:33:51 +0000
+Subject: [PATCH] bus: Clear INVOCATION_ID when carrying out traditional
+ activation
+
+We weren't sure whether this one should be inherited or not, so I
+asked on systemd-devel, and Lennart thought it shouldn't.
+
+Signed-off-by: Simon McVittie <smcv@collabora.com>
+Bug: https://bugs.freedesktop.org/show_bug.cgi?id=104641
+Reviewed-by: Philip Withnall <withnall@endlessm.com>
+---
+ bus/activation.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/bus/activation.c b/bus/activation.c
+index 66640ba6..2a427d9c 100644
+--- a/bus/activation.c
++++ b/bus/activation.c
+@@ -862,7 +862,6 @@ populate_environment (BusActivation *activation)
+    * - TERM, WATCHDOG_*: Should not be set for dbus-daemon, so not applicable
+    * - MAINPID, SERVICE_RESULT, EXIT_CODE, EXIT_STATUS: Not set for ExecStart,
+    *   so not applicable
+-   * - INVOCATION_ID: TODO: Do we want to clear this or not? It isn't clear.
+    */
+ 
+   /* We give activated services their own Journal stream to avoid their
+@@ -878,6 +877,13 @@ populate_environment (BusActivation *activation)
+    * (and NotifyAccess wouldn't let it write here anyway) */
+   _dbus_hash_table_remove_string (activation->environment, "NOTIFY_SOCKET");
+ 
++  /* This identifies the dbus-daemon invocation. Whether it should be
++   * inherited by "smaller" services isn't entirely clear-cut, but not
++   * inheriting it makes traditional D-Bus activation under systemd a
++   * little more consistent with systemd activation.
++   * https://lists.freedesktop.org/archives/systemd-devel/2018-March/040467.html */
++  _dbus_hash_table_remove_string (activation->environment, "INVOCATION_ID");
++
+   return retval;
+ }
+ 
+-- 
+2.27.0
+

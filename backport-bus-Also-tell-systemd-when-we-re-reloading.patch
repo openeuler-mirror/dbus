@@ -1,0 +1,104 @@
+From c937a39e4ba1e297518edbd78feeb6f1cc764bd1 Mon Sep 17 00:00:00 2001
+From: Simon McVittie <smcv@collabora.com>
+Date: Mon, 15 Jan 2018 15:31:41 +0000
+Subject: [PATCH] bus: Also tell systemd when we're reloading
+
+Signed-off-by: Simon McVittie <smcv@collabora.com>
+Reviewed-by: Philip Withnall <withnall@endlessm.com>
+Bug: https://bugs.freedesktop.org/show_bug.cgi?id=104641
+---
+ bus/bus.c                     |  4 ++++
+ dbus/dbus-sysdeps-util-unix.c | 25 +++++++++++++++++++++++++
+ dbus/dbus-sysdeps-util-win.c  | 10 ++++++++++
+ dbus/dbus-sysdeps.h           |  2 ++
+ 4 files changed, 41 insertions(+)
+
+diff --git a/bus/bus.c b/bus/bus.c
+index abb2ea2f..9fd9820b 100644
+--- a/bus/bus.c
++++ b/bus/bus.c
+@@ -1065,6 +1065,8 @@ bus_context_reload_config (BusContext *context,
+   DBusString config_file;
+   dbus_bool_t ret;
+ 
++  _dbus_daemon_report_reloading ();
++
+   /* Flush the user database cache */
+   _dbus_flush_caches ();
+ 
+@@ -1095,6 +1097,8 @@ bus_context_reload_config (BusContext *context,
+     bus_context_log (context, DBUS_SYSTEM_LOG_INFO, "Unable to reload configuration: %s", error->message);
+   if (parser != NULL)
+     bus_config_parser_unref (parser);
++
++  _dbus_daemon_report_reloaded ();
+   return ret;
+ }
+ 
+diff --git a/dbus/dbus-sysdeps-util-unix.c b/dbus/dbus-sysdeps-util-unix.c
+index 838cd932..8a7c9278 100644
+--- a/dbus/dbus-sysdeps-util-unix.c
++++ b/dbus/dbus-sysdeps-util-unix.c
+@@ -1531,3 +1531,28 @@ _dbus_daemon_report_ready (void)
+   sd_notify (0, "READY=1");
+ #endif
+ }
++
++/**
++ * Report to a service manager that the daemon calling this function is
++ * reloading configuration. This is currently only implemented for systemd.
++ */
++void
++_dbus_daemon_report_reloading (void)
++{
++#ifdef HAVE_SYSTEMD
++  sd_notify (0, "RELOADING=1");
++#endif
++}
++
++/**
++ * Report to a service manager that the daemon calling this function is
++ * reloading configuration. This is currently only implemented for systemd.
++ */
++void
++_dbus_daemon_report_reloaded (void)
++{
++#ifdef HAVE_SYSTEMD
++  /* For systemd, this is the same code */
++  _dbus_daemon_report_ready ();
++#endif
++}
+diff --git a/dbus/dbus-sysdeps-util-win.c b/dbus/dbus-sysdeps-util-win.c
+index f613130e..917dd05e 100644
+--- a/dbus/dbus-sysdeps-util-win.c
++++ b/dbus/dbus-sysdeps-util-win.c
+@@ -1659,3 +1659,13 @@ void
+ _dbus_daemon_report_ready (void)
+ {
+ }
++
++void
++_dbus_daemon_report_reloading (void)
++{
++}
++
++void
++_dbus_daemon_report_reloaded (void)
++{
++}
+diff --git a/dbus/dbus-sysdeps.h b/dbus/dbus-sysdeps.h
+index b2943906..d8e69589 100644
+--- a/dbus/dbus-sysdeps.h
++++ b/dbus/dbus-sysdeps.h
+@@ -688,6 +688,8 @@ dbus_bool_t _dbus_test_append_different_username (DBusString *username);
+ #endif  /* DBUS_ENABLE_EMBEDDED_TESTS */
+
+ void            _dbus_daemon_report_ready                  (void);
++void            _dbus_daemon_report_reloading              (void);
++void            _dbus_daemon_report_reloaded               (void);
+
+ /** @} */
+
+-- 
+2.27.0
+

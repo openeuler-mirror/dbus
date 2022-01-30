@@ -1,0 +1,57 @@
+From be4670767377a08b0c6cabbca1000ca614174c2c Mon Sep 17 00:00:00 2001
+From: Simon McVittie <smcv@collabora.com>
+Date: Mon, 15 Jan 2018 15:26:33 +0000
+Subject: [PATCH] bus: Don't pass systemd environment variables to activated
+ services
+
+Signed-off-by: Simon McVittie <smcv@collabora.com>
+Bug: https://bugs.freedesktop.org/show_bug.cgi?id=104641
+Reviewed-by: Philip Withnall <withnall@endlessm.com>
+---
+ bus/activation.c | 30 ++++++++++++++++++++++++++++++
+ 1 file changed, 30 insertions(+)
+
+diff --git a/bus/activation.c b/bus/activation.c
+index edf96a2c..66640ba6 100644
+--- a/bus/activation.c
++++ b/bus/activation.c
+@@ -848,6 +848,36 @@ populate_environment (BusActivation *activation)
+   retval = _dbus_hash_table_from_array (activation->environment, environment, '=');
+   dbus_free_string_array (environment);
+ 
++  /*
++   * These environment variables are set by systemd for the dbus-daemon
++   * itself, and are not applicable to our child processes.
++   *
++   * Of the other environment variables listed in systemd.exec(5):
++   *
++   * - XDG_RUNTIME_DIR, XDG_SESSION_ID, XDG_SEAT, XDG_VTNR: Properties of
++   *   the session and equally true for the activated service, should not
++   *   be reset
++   * - PATH, LANG, USER, LOGNAME, HOME, SHELL, MANAGERPID: Equally true for
++   *   the activated service, should not be reset
++   * - TERM, WATCHDOG_*: Should not be set for dbus-daemon, so not applicable
++   * - MAINPID, SERVICE_RESULT, EXIT_CODE, EXIT_STATUS: Not set for ExecStart,
++   *   so not applicable
++   * - INVOCATION_ID: TODO: Do we want to clear this or not? It isn't clear.
++   */
++
++  /* We give activated services their own Journal stream to avoid their
++   * logging being attributed to dbus-daemon */
++  _dbus_hash_table_remove_string (activation->environment, "JOURNAL_STREAM");
++
++  /* This is dbus-daemon's listening socket, not the activatable service's */
++  _dbus_hash_table_remove_string (activation->environment, "LISTEN_FDNAMES");
++  _dbus_hash_table_remove_string (activation->environment, "LISTEN_FDS");
++  _dbus_hash_table_remove_string (activation->environment, "LISTEN_PID");
++
++  /* This is dbus-daemon's status notification, not the activatable service's
++   * (and NotifyAccess wouldn't let it write here anyway) */
++  _dbus_hash_table_remove_string (activation->environment, "NOTIFY_SOCKET");
++
+   return retval;
+ }
+ 
+-- 
+2.27.0
+
